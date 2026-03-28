@@ -20,14 +20,11 @@ public class EmployeeController : ControllerBase
     public IActionResult GetEmployee()
     {
         var employees = new List<Employee>();
-
         using var connection = new SqlConnection(_connectionString);
         connection.Open();
-
         var command = new SqlCommand(
             "SELECT Id, Name FROM Employees", connection);
         var reader = command.ExecuteReader();
-
         while (reader.Read())
         {
             employees.Add(new Employee
@@ -36,7 +33,6 @@ public class EmployeeController : ControllerBase
                 Name = reader.GetString(1)
             });
         }
-
         return Ok(employees);
     }
 
@@ -46,12 +42,22 @@ public class EmployeeController : ControllerBase
     {
         using var connection = new SqlConnection(_connectionString);
         connection.Open();
-     Console.WriteLine(employee);
         var command = new SqlCommand(
             "INSERT INTO Employees (Name) VALUES (@Name)", connection);
         command.Parameters.AddWithValue("@Name", employee.Name);
         command.ExecuteNonQuery();
-
         return Ok("Employee created successfully");
     }
-}
+
+// DELETE /api/employee/1
+[HttpDelete("{id}")]
+public IActionResult DeleteEmployee(int id)
+{
+    using var connection = new SqlConnection(_connectionString);
+    connection.Open();
+    var command = new SqlCommand(
+        "DELETE FROM Employees WHERE Id = @Id", connection);
+    command.Parameters.AddWithValue("@Id", id);
+    command.ExecuteNonQuery();
+    return Ok("Employee deleted successfully");
+}}
