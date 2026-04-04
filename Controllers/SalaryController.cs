@@ -32,16 +32,15 @@ public IActionResult GetSalary([FromQuery] int empId)
 
         var reader = command.ExecuteReader();
 
-        while (reader.Read())
-        {
-            salaries.Add(new Salary
-            {
-                Id    = (int)reader["Id"],
-                EmpId = (int)reader["EmpId"],
-                amount = (int)reader["amount"], // use decimal not int
-            });
-        }
-
+ while (reader.Read())
+{
+    salaries.Add(new Salary
+    {
+        Id     = (int)reader["Id"],
+        EmpId  = (int)reader["EmpId"],
+        Amount = (decimal)reader["Amount"], // ✅ decimal + capital A
+    });
+}
         if (!salaries.Any())
             return NotFound(new { message = "No records found" });
 
@@ -58,12 +57,11 @@ public IActionResult GetSalary([FromQuery] int empId)
     public IActionResult CreateSalary([FromBody] Salary salary){
   using var connection = new SqlConnection(_connectionString);
         connection.Open();
-    var command = new SqlCommand(
-            "INSERT INTO Salary (Id,amount,EmpId) VALUES (@Id,@amount,@EmpId)", connection);
-                    command.Parameters.AddWithValue("@Id", salary.Id);
-        command.Parameters.AddWithValue("@amount", salary.amount);
+var command = new SqlCommand(
+    "INSERT INTO Salary (EmpId, Amount) VALUES (@EmpId, @Amount)", connection);
 
-        command.Parameters.AddWithValue("@EmpId", salary.EmpId);
+command.Parameters.AddWithValue("@EmpId",  salary.EmpId);
+command.Parameters.AddWithValue("@Amount", salary.Amount);
         command.ExecuteNonQuery();
         return Ok("Salary Added");
     }
